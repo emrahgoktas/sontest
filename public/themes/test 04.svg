@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="595.28" height="841.89" viewBox="0 0 595.28 841.89">
+  <!-- Üst bar -->
+  <polygon fill="#233463" points="398.74 88.79 595.28 88.79 595.28 54.48 427.62 54.48 398.74 88.79" />
+  <polygon fill="#233463" points="398.74 88.79 0 88.79 0 123.11 369.85 123.11 398.74 88.79" />
+
+  <!-- Alt bar -->
+  <rect fill="#233463" y="805.7" width="595.28" height="21.12" />
+
+  <!-- Dikey kesikli çizgi -->
+  <line x1="297.64" y1="172.16" x2="297.64" y2="175.16" stroke="#dc6a14" stroke-width="0.75" />
+  <line x1="297.64" y1="181.2" x2="297.64" y2="758.02" stroke="#dc6a14" stroke-width="0.75" stroke-dasharray="6.04 6.04" />
+  <line x1="297.64" y1="761.04" x2="297.64" y2="764.04" stroke="#dc6a14" stroke-width="0.75" />
+</svg>
