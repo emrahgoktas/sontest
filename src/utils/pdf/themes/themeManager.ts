@@ -10,6 +10,7 @@ import { yaprakTestTheme } from './yaprakTest';
 import { denemeSinaviTheme } from './denemeSinavi';
 import { yaziliSinavTheme } from './yaziliSinav';
 import { tyt2024Theme } from './tyt2024';
+import { yks2025Theme } from './yks2025';
 
 /**
  * Theme registry containing all available themes
@@ -19,7 +20,8 @@ const themeRegistry = new Map<ThemeType, ThemePlugin>([
   ['yaprak-test', yaprakTestTheme],
   ['deneme-sinavi', denemeSinaviTheme],
   ['yazili-sinav', yaziliSinavTheme],
-  ['tyt-2024', tyt2024Theme]
+  ['tyt-2024', tyt2024Theme],
+  ['yks-2025', yks2025Theme]
 ]);
 
 /**

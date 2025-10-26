@@ -207,56 +207,11 @@ const createProfessionalPageWithContent = async (
   theme?: any
 ): Promise<{ page: PDFPage; contentArea: ContentArea }> => {
   const page = createNewPage(pdfDoc);
-  
-  // Add SVG background for yaprak-test theme
-  if (theme?.config?.backgroundSvgPath && theme.config.id === 'yaprak-test') {
+  if (theme?.config?.backgroundSvgPath) {
     try {
       await addPngBackground(page, pdfDoc, theme);
     } catch (backgroundError) {
       console.warn('Background loading failed, continuing without background:', backgroundError);
-      // Continue with white background if PNG fails
-      page.drawRectangle({
-        x: 0,
-        y: 0,
-        width: PDF_CONSTANTS.PAGE_WIDTH,
-        height: PDF_CONSTANTS.PAGE_HEIGHT,
-        color: rgb(1, 1, 1) // Pure white fallback
-      });
-    }
-  } else if (theme?.config?.backgroundSvgPath && theme.config.id === 'deneme-sinavi') {
-    try {
-      await addPngBackground(page, pdfDoc, theme);
-    } catch (backgroundError) {
-      console.warn('Background loading failed, continuing without background:', backgroundError);
-      // Continue with white background if PNG fails
-      page.drawRectangle({
-        x: 0,
-        y: 0,
-        width: PDF_CONSTANTS.PAGE_WIDTH,
-        height: PDF_CONSTANTS.PAGE_HEIGHT,
-        color: rgb(1, 1, 1) // Pure white fallback
-      });
-    }
-  } else if (theme?.config?.backgroundSvgPath && theme.config.id === 'yazili-sinav') {
-    try {
-      await addPngBackground(page, pdfDoc, theme);
-    } catch (backgroundError) {
-      console.warn('Background loading failed, continuing without background:', backgroundError);
-      // Continue with white background if PNG fails
-      page.drawRectangle({
-        x: 0,
-        y: 0,
-        width: PDF_CONSTANTS.PAGE_WIDTH,
-        height: PDF_CONSTANTS.PAGE_HEIGHT,
-        color: rgb(1, 1, 1) // Pure white fallback
-      });
-    }
-  } else if (theme?.config?.backgroundSvgPath && theme.config.id === 'tyt-2024') {
-    try {
-      await addPngBackground(page, pdfDoc, theme);
-    } catch (backgroundError) {
-      console.warn('Background loading failed, continuing without background:', backgroundError);
-      // Continue with white background if PNG fails
       page.drawRectangle({
         x: 0,
         y: 0,
@@ -343,6 +298,7 @@ const addPngBackground = async (page: PDFPage, pdfDoc: PDFDocument, themePlugin:
         height: PDF_CONSTANTS.PAGE_HEIGHT
       });
       console.log('✅ Used cached background:', cacheKey);
+      console.log('[pageUtils] background applied:', themeConfig.backgroundSvgPath);
       return;
     }
 
@@ -357,22 +313,21 @@ const addPngBackground = async (page: PDFPage, pdfDoc: PDFDocument, themePlugin:
     backgroundAttempts.add(cacheKey);
 
     // Try multiple background options (orijinal liste korunur)
-    const backgroundOptions = [
-      themeConfig.backgroundSvgPath,
-      '/themes/test-02.png',
-      '/themes/test 02.svg'
-    ];
+     const backgroundOptions: string[] = [];
+    if (themeConfig.backgroundSvgPath) {
+      backgroundOptions.push(themeConfig.backgroundSvgPath);
+    }
 
     if (themePlugin.config.id === 'deneme-sinavi') {
-      backgroundOptions.unshift('/themes/test-03.png');
+      backgroundOptions.push('/themes/test-03.png');
     }
     if (themePlugin.config.id === 'yazili-sinav') {
-      backgroundOptions.unshift('/themes/test-05.png');
+      backgroundOptions.push('/themes/test-05.png');
     }
     if (themePlugin.config.id === 'tyt-2024') {
-      backgroundOptions.unshift('/themes/test-04.png');
+      backgroundOptions.push('/themes/test-04.png');
     }
-
+     backgroundOptions.push('/themes/test-02.png', '/themes/test 02.svg');
     let loadedImage: any = null;
 
     for (const backgroundPath of backgroundOptions) {
@@ -414,6 +369,7 @@ const addPngBackground = async (page: PDFPage, pdfDoc: PDFDocument, themePlugin:
             width: PDF_CONSTANTS.PAGE_WIDTH,
             height: PDF_CONSTANTS.PAGE_HEIGHT
           });
+          console.log('[pageUtils] background applied:', backgroundPath);
           return; // [KGA-CHANGE]: başarıyla çizildi, fonksiyondan çık
         }
       } catch (error: any) {
