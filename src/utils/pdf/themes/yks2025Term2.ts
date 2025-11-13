@@ -3,11 +3,11 @@ import { ThemePlugin, ThemeConfig, ThemedTestMetadata } from '../../../types/the
 import { PDF_CONSTANTS } from '../constants';
 import { sanitizeTextForPDF } from '../textUtils';
 
-const yks2025Config: ThemeConfig = {
-  id: 'yks-2025',
-  name: 'YKS 2025',
+const yks2025Term2Config: ThemeConfig = {
+  id: 'yks-2025-2',
+  name: 'YKS 2025 (2. Dönem)',
   description: 'YKS 2025 deneme sınavı için modern temalı PDF düzeni',
-  backgroundSvgPath: '/themes/test03-1.png',
+  backgroundSvgPath: '/themes/test03-2.png',
   colors: {
     primary: { r: 0.12, g: 0.12, b: 0.12 },
     secondary: { r: 0.35, g: 0.35, b: 0.35 },
@@ -56,17 +56,19 @@ const drawCenteredText = (
 ): void => {
   const sanitized = sanitizeTextForPDF(text);
   if (!sanitized) return;
-
+    
   const estimatedWidth = sanitized.length * (size * 0.45);
   const x = (PDF_CONSTANTS.PAGE_WIDTH - estimatedWidth) / 2 - 6;
 
   page.drawText(sanitized, {
+    
     x,
     y,
     size,
     color: rgb(1, 1, 1),
   });
 };
+
 
 const renderHeader = (
   page: PDFPage,
@@ -75,68 +77,86 @@ const renderHeader = (
 ): number => {
   let yPos = 805;
 
+  // 🔹 Başlık (beyaz)
+  const titleText = sanitizeTextForPDF(metadata.testName || 'YKS 2025 DENEMESİ');
+  const titleSize = 14;
+  const titleWidth = titleText.length * (titleSize * 0.45);
+  const titleX = (PDF_CONSTANTS.PAGE_WIDTH - titleWidth) / 2 - 13;
 
   yPos -= 30;
-
-  drawCenteredText(
-    page,
-    metadata.testName || 'YKS 2025 DENEMESİ',
-    yPos -20,
-    16,
-    { r: 1, g: 1, b: 1 },
-    
-    
-  );
+  page.drawText(titleText, {
+    x: titleX,
+    y: yPos - 20,
+    size: titleSize,
+    color: rgb(1, 1, 1) // <-- beyaz metin
+  });
 
   yPos -= 40;
 
+  // 🔹 Alt başlık (ders adı, sınıf, kod) – beyaz + başlığa göre hizalanmış
   const infoParts: string[] = [];
   if (metadata.courseName) infoParts.push(metadata.courseName);
   if (metadata.className) infoParts.push(metadata.className);
   if (metadata.examCode) infoParts.push(`Kod: ${metadata.examCode}`);
 
   if (infoParts.length) {
-    drawCenteredText(page, infoParts.join(' • '), yPos, 14, yks2025Config.colors.secondary);
+    const infoText = sanitizeTextForPDF(infoParts.join(' • '));
+    const infoSize = 14;
+    const infoWidth = infoText.length * (infoSize * 0.45);
+
+    // Başlık merkezine göre ortalama
+    const titleCenter = titleX + titleWidth / -4;
+    const infoX = titleCenter - infoWidth / -4;
+
+    page.drawText(infoText, {
+      x: infoX,
+      y: yPos,
+      size: infoSize,
+      color: rgb(1, 1, 1) // <-- beyaz metin
+    });
+
     yPos -= 20;
   }
 
-  const leftX = 50;
+  const leftX = 60;
   const lineColor = rgb(
-    yks2025Config.colors.border.r,
-    yks2025Config.colors.border.g,
-    yks2025Config.colors.border.b
+    yks2025Term2Config.colors.border.r,
+    yks2025Term2Config.colors.border.g,
+    yks2025Term2Config.colors.border.b
   );
 
-  if (yks2025Config.fields.studentName) {
+  // 🔹 Öğrenci bilgileri
+  if (yks2025Term2Config.fields.studentName) {
     const label = sanitizeTextForPDF('Ad Soyad: ____________');
     page.drawText(label, {
       x: leftX,
       y: yPos,
       size: 10,
       color: rgb(
-        yks2025Config.colors.text.r,
-        yks2025Config.colors.text.g,
-        yks2025Config.colors.text.b
+        yks2025Term2Config.colors.text.r,
+        yks2025Term2Config.colors.text.g,
+        yks2025Term2Config.colors.text.b
       )
     });
     yPos -= 15;
   }
 
-  if (yks2025Config.fields.studentNumber) {
+  if (yks2025Term2Config.fields.studentNumber) {
     const label = sanitizeTextForPDF('Öğrenci No: _________');
     page.drawText(label, {
       x: leftX,
       y: yPos,
       size: 10,
       color: rgb(
-        yks2025Config.colors.text.r,
-        yks2025Config.colors.text.g,
-        yks2025Config.colors.text.b
+        yks2025Term2Config.colors.text.r,
+        yks2025Term2Config.colors.text.g,
+        yks2025Term2Config.colors.text.b
       )
     });
     yPos -= 16;
   }
 
+  // 🔹 Alt çizgi
   page.drawLine({
     start: { x: 40, y: yPos },
     end: { x: PDF_CONSTANTS.PAGE_WIDTH - 40, y: yPos },
@@ -150,23 +170,25 @@ const renderHeader = (
 const renderFooter = (page: PDFPage, pageNumber: number, totalPages: number): void => {
   const footerY = 40;
 
+  // 🔹 Footer çizgisi
   page.drawLine({
     start: { x: 40, y: footerY + 18 },
     end: { x: PDF_CONSTANTS.PAGE_WIDTH - 40, y: footerY + 18 },
     thickness: 0.8,
     color: rgb(
-      yks2025Config.colors.border.r,
-      yks2025Config.colors.border.g,
-      yks2025Config.colors.border.b
+      yks2025Term2Config.colors.border.r,
+      yks2025Term2Config.colors.border.g,
+      yks2025Term2Config.colors.border.b
     )
   });
 
+  // 🔹 Sayfa numarası
   const pageInfo = `Sayfa ${pageNumber} / ${totalPages}`;
-  drawCenteredText(page, pageInfo, footerY, 10, yks2025Config.colors.secondary);
+  drawCenteredText(page, pageInfo, footerY, 10, yks2025Term2Config.colors.secondary);
 };
 
-export const yks2025Theme: ThemePlugin = {
-  config: yks2025Config,
+export const yks2025Term2Theme: ThemePlugin = {
+  config: yks2025Term2Config,
   renderHeader,
   renderFooter
 };

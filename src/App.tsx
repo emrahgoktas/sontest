@@ -66,33 +66,22 @@ const App: React.FC = () => {
   /**
    * Handle action selection
    */
-  const handleActionSelection = useCallback((action: ActionType) => {
-    console.log('Action selected:', action);
-    localStorage.removeItem('showActionSelection');
-    
-    // Use setTimeout to ensure state updates are processed first
-    setTimeout(() => {
-      switch (action) {
-        case 'test-creator':
-          console.log('Navigating to test creator - staying on main app');
-          break;
-        case 'ai-test-creator':
-          console.log('Navigating to AI question generator');
-          window.location.href = '/ai-question-generator';
-          break;
-        case 'question-editor':
-          console.log('Navigating to question editor');
-          window.location.href = '/manual-question-editor';
-          break;
-        case 'online-exam':
-          console.log('Navigating to online exam');
-          window.location.href = '/online-exam';
-          break;
-        default:
-          console.log('Default navigation - staying on main app');
-      }
-    }, 100);
-  }, []);
+const handleActionSelection = useCallback((action: ActionType) => {
+  document.body.style.overflow = 'auto';
+  document.body.classList.remove('modal-open', 'overflow-hidden', 'fixed');
+  document.documentElement.style.overflow = 'auto';
+  document.documentElement.style.pointerEvents = 'auto';
+  console.log('✅ Unlocked overlay');
+
+  // test-creator içinde kal
+  if (action === 'test-creator') return;
+
+  if (action === 'ai-test-creator') window.location.assign('/ai-question-generator');
+  if (action === 'question-editor') window.location.assign('/manual-question-editor');
+  if (action === 'online-exam') window.location.assign('/online-exam');
+}, []);
+
+
 
   // Main application state
   const [appState, setAppState] = useState<AppState>(() => {
@@ -358,6 +347,7 @@ const AppRouter: React.FC<AppRouterProps> = ({
   handleLogout
 }) => {
   const navigate = useNavigate();
+  
 
   return (
     <Routes>
@@ -458,6 +448,15 @@ const MainContent: React.FC<MainContentProps> = ({
   handleLogout
 }) => {
   const navigate = useNavigate();
+
+  // Ensure the test builder wizard always starts from the first step when the module mounts
+  useEffect(() => {
+    localStorage.removeItem('currentStep');
+    localStorage.removeItem('testBuilderStep');
+    if (navigateToStep) {
+      navigateToStep('upload');
+    }
+  }, [navigateToStep]);
   
   // Profil bayrağı ile açılış
   useEffect(() => {

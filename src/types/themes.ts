@@ -9,7 +9,15 @@ import { TestMetadata, CroppedQuestion } from './index';
 /**
  * Available theme types
  */
-export type ThemeType = 'classic' | 'yaprak-test' | 'deneme-sinavi' | 'yazili-sinav' | 'tyt-2024';
+export type ThemeType = 'classic'
+ | 'yaprak-test' 
+ | 'deneme-sinavi'
+  | 'yazili-sinav' 
+  | 'tyt-2024'
+  | 'yks-2025'
+  | 'yks-2025-2'
+  | 'yks-2025-3'
+  | 'yks-2025-4';
 
 /**
  * Watermark configuration options

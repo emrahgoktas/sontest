@@ -19,7 +19,7 @@ const yaziliSinavConfig: ThemeConfig = {
   description: 'Formal exam theme with school information, student details, and signature area',
   
   // PNG background support
-  backgroundSvgPath: '/themes/test-05.png',
+  backgroundSvgPath: '/themes/test-10.png',
   
   colors: {
     primary: { r: 0.2, g: 0.2, b: 0.2 }, // Dark gray
@@ -57,73 +57,78 @@ const yaziliSinavConfig: ThemeConfig = {
 /**
  * Renders formal header for Yazılı Sınav theme
  */
+/**
+ * Renders formal header for Yazılı Sınav theme (updated - no border, left-aligned, shifted up)
+ */
 const renderYaziliSinavHeader = (
-  page: PDFPage, 
-  metadata: ThemedTestMetadata, 
+  page: PDFPage,
+  metadata: ThemedTestMetadata,
   contentStartY: number
 ): number => {
-  let yPos = 820;
-  
-  // Formal header box
-  page.drawRectangle({
-    x: 30,
-    y: yPos - 5,
-    width: 535,
-    height: 120,
-    borderColor: rgb(yaziliSinavConfig.colors.border.r, yaziliSinavConfig.colors.border.g, yaziliSinavConfig.colors.border.b),
-    borderWidth: 2
-  });
-  
-  // School name header
-  if (metadata.schoolName) {
-    const schoolText = sanitizeTextForPDF(metadata.schoolName);
-    const schoolWidth = schoolText.length * 5;
-    page.drawText(schoolText, {
-      x: (PDF_CONSTANTS.PAGE_WIDTH - schoolWidth) / 2,
-      y: yPos - 20,
-      size: 14,
-      color: rgb(yaziliSinavConfig.colors.primary.r, yaziliSinavConfig.colors.primary.g, yaziliSinavConfig.colors.primary.b)
-    });
-    yPos -= 30;
-  }
-  
-  // Test title with formal styling
+  let yPos = 780; // Normal başlangıç
+  const leftPadding = 20;
+
+  // 🔹 Başlık (20 px yukarıdan başlat)
   if (metadata.testName) {
     const titleText = sanitizeTextForPDF(metadata.testName);
-    const titleWidth = titleText.length * 6;
     page.drawText(titleText, {
-      x: (PDF_CONSTANTS.PAGE_WIDTH - titleWidth) / 2,
-      y: yPos,
-      size: 18,
-      color: rgb(yaziliSinavConfig.colors.primary.r, yaziliSinavConfig.colors.primary.g, yaziliSinavConfig.colors.primary.b)
+      x: leftPadding,
+      y: yPos + 30, // 🔼 20 px yukarı kaydırma
+      size: 14,
+      color: rgb(
+        yaziliSinavConfig.colors.primary.r,
+        yaziliSinavConfig.colors.primary.g,
+        yaziliSinavConfig.colors.primary.b
+      ),
     });
-    yPos -= 35;
+    yPos -= 1;
   }
-  
-  // Course and class information
-  const courseInfo = [];
-  if (metadata.courseName) courseInfo.push(`Ders: ${sanitizeTextForPDF(metadata.courseName)}`);
-  if (metadata.className) courseInfo.push(`Sinif: ${sanitizeTextForPDF(metadata.className)}`);
-  if (metadata.teacherName) courseInfo.push(`Ogretmen: ${sanitizeTextForPDF(metadata.teacherName)}`);
-  
-  courseInfo.forEach(info => {
-    const infoWidth = info.length * 3.5;
-    page.drawText(info, {
-      x: (PDF_CONSTANTS.PAGE_WIDTH - infoWidth) / 2,
+
+  // 🔹 Okul adı (normal konum)
+  if (metadata.schoolName) {
+    const schoolText = sanitizeTextForPDF(metadata.schoolName);
+    page.drawText(schoolText, {
+      x: leftPadding,
       y: yPos,
-      size: 12,
-      color: rgb(yaziliSinavConfig.colors.secondary.r, yaziliSinavConfig.colors.secondary.g, yaziliSinavConfig.colors.secondary.b)
+      size: 10,
+      color: rgb(
+        yaziliSinavConfig.colors.secondary.r,
+        yaziliSinavConfig.colors.secondary.g,
+        yaziliSinavConfig.colors.secondary.b
+      ),
     });
-    yPos -= 20;
+    yPos -= 18;
+  }
+
+  // 🔹 Ders / Sınıf / Öğretmen bilgileri
+  const infoParts: string[] = [];
+  if (metadata.courseName)
+    infoParts.push(sanitizeTextForPDF(`Ders: ${metadata.courseName}`));
+  if (metadata.className)
+    infoParts.push(sanitizeTextForPDF(`Sinif: ${metadata.className}`));
+  if (metadata.teacherName)
+    infoParts.push(sanitizeTextForPDF(`Ogretmen: ${metadata.teacherName}`));
+
+  infoParts.forEach((info) => {
+    page.drawText(info, {
+      x: leftPadding,
+      y: yPos,
+      size: 11,
+      color: rgb(
+        yaziliSinavConfig.colors.text.r,
+        yaziliSinavConfig.colors.text.g,
+        yaziliSinavConfig.colors.text.b
+      ),
+    });
+    yPos -= 18;
   });
-  
+
   yPos -= 10;
-  
-  // Student information section
   renderFormalStudentSection(page, metadata, yPos);
-  
+
   return yPos - 90;
 };
+
 
 /**
  * Renders formal student information section
@@ -283,15 +288,35 @@ const renderYaziliSinavFooter = (page: PDFPage, pageNumber: number, totalPages: 
  */
 export const yaziliSinavTheme: ThemePlugin = {
   config: yaziliSinavConfig,
-  
+
   renderHeader: renderYaziliSinavHeader,
   renderFooter: renderYaziliSinavFooter,
-  
-  // Custom question rendering with answer areas
+
   renderQuestionBox: (page: PDFPage, question: any, layout: any) => {
-    // Render answer area below each question for written exams
-    if (layout && layout.x !== undefined && layout.y !== undefined) {
-      renderAnswerArea(page, layout.x, layout.y - layout.height - 10, layout.width);
-    }
+  if (!layout || layout.y === undefined) return;
+
+  const PAGE_LEFT = 20;
+  const topY = Number(layout.y);
+  const usableWidth = layout.width || (page.getWidth() - PAGE_LEFT * 2);
+
+  // Görsel varsa
+  if (question?.embeddedImage) {
+    const imgHeight = typeof question.imageHeight === "number" && question.imageHeight > 0 ? question.imageHeight : 140;
+    const imgWidth = typeof question.imageWidth === "number" && question.imageWidth > 0 ? question.imageWidth : usableWidth;
+
+    page.drawImage(question.embeddedImage, {
+      x: PAGE_LEFT,
+      y: topY - imgHeight - 10,
+      width: imgWidth,
+      height: imgHeight,
+    });
+
+    renderAnswerArea(page, PAGE_LEFT, topY - imgHeight - 40, imgWidth);
+    return;
   }
+
+  // Görsel yoksa bile aynı hizadan başlat
+  renderAnswerArea(page, PAGE_LEFT, topY - layout.height - 30, usableWidth);
+}
+
 };

@@ -9,6 +9,10 @@ export * from './yaprakTest';
 export * from './denemeSinavi';
 export * from './yaziliSinav';
 export * from './tyt2024';
+export * from './yks2025';
+export * from './yks2025Term2';
+export * from './yks2025Term3';
+export * from './yks2025Term4';
 export * from './themeManager';
 export * from './watermarkUtils';
 

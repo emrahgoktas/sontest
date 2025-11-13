@@ -128,12 +128,17 @@ export const calculateQuestionDisplaySize = (
   const naturalWidth = actualWidth * pixelToPointRatio;
   const naturalHeight = actualHeight * pixelToPointRatio;
   
+    // 🔹 Yazılı sınav temasında görseli %30 büyüt
+    const themeScaleBoost = (window?.activePdfTheme === 'yazili-sinav') ? 1.3 : 1.0;
+    const boostedWidth = naturalWidth * themeScaleBoost;
+    const boostedHeight = naturalHeight * themeScaleBoost;
+      
   // Check if original size fits in available space
-  if (naturalWidth <= availableWidth && naturalHeight <= availableHeight) {
+  if (boostedWidth <= availableWidth && boostedHeight <= availableHeight) {
     return { 
-      width: Math.round(naturalWidth), 
-      height: Math.round(naturalHeight),
-      scaleFactor: 1.0 // No scaling applied
+      width: Math.round(boostedWidth), 
+      height: Math.round(boostedHeight),
+      scaleFactor: 1.3 // No scaling applied
     };
   }
   

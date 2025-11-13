@@ -11,6 +11,9 @@ import { denemeSinaviTheme } from './denemeSinavi';
 import { yaziliSinavTheme } from './yaziliSinav';
 import { tyt2024Theme } from './tyt2024';
 import { yks2025Theme } from './yks2025';
+import { yks2025Term2Theme } from './yks2025Term2';
+import { yks2025Term3Theme } from './yks2025Term3';
+import { yks2025Term4Theme } from './yks2025Term4';
 
 /**
  * Theme registry containing all available themes
@@ -21,7 +24,11 @@ const themeRegistry = new Map<ThemeType, ThemePlugin>([
   ['deneme-sinavi', denemeSinaviTheme],
   ['yazili-sinav', yaziliSinavTheme],
   ['tyt-2024', tyt2024Theme],
-  ['yks-2025', yks2025Theme]
+  ['yks-2025', yks2025Theme],
+  ['yks-2025-2', yks2025Term2Theme],
+  ['yks-2025-3', yks2025Term3Theme],
+  ['yks-2025-4', yks2025Term4Theme]
+  
 ]);
 
 /**

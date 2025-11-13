@@ -238,6 +238,16 @@ export const getDefaultWatermarkForTheme = (themeType: string): WatermarkConfig 
         rotation: -30,
         color: { r: 0, g: 0.75, b: 0.8 }
       };
+      case 'yks-2025': // Yeni temanızın ID'si
+      return {
+        type: 'text',
+        content: 'YKS',
+        opacity: 0.08,
+        position: 'center',
+        size: 55,
+        rotation: -30,
+        color: { r: 0.1, g: 0.3, b: 0.8 } // Mavi ton
+      };
     default:
       return { type: 'none' };
   }

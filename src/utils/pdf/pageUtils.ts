@@ -45,6 +45,7 @@ export const clearBackgroundCache = (): void => {
  * @param options - Theme and generation options
  * @returns Number of pages created
  */
+
 export const generateThemedQuestionPages = async (
   pdfDoc: PDFDocument,
   metadata: ThemedTestMetadata,
@@ -55,6 +56,9 @@ export const generateThemedQuestionPages = async (
   clearBackgroundCache();
   
   const theme = options?.theme ? getTheme(options.theme) : null;
+  if (theme?.config?.id) {
+  (window as any).activePdfTheme = theme.config.id;
+}
   const themeConfig = theme?.config;
   
   let currentPage: PDFPage | null = null;
@@ -70,6 +74,11 @@ export const generateThemedQuestionPages = async (
     // Try to place question on current page
     while (!questionPlaced) {
       // Create new page if needed
+      // 🎯 Tema özel sayfa limiti (örnek: Yaprak Test)
+if (theme?.validatePageLimit && !theme.validatePageLimit(pdfDoc.getPageCount(), questions.length)) {
+  return pageCount; // yeni sayfa oluşturma
+}
+
       if (!currentPage || !contentArea) {
         const newPageResult = await createProfessionalPageWithContent(pdfDoc, metadata, isFirstPage, theme);
         currentPage = newPageResult.page;
@@ -103,6 +112,9 @@ export const generateThemedQuestionPages = async (
       
       if (questionLayout) {
         // Question fits in current column at original size
+        if (theme?.config?.id === 'yazili-sinav') {
+          questionLayout.x = 60;
+        }
         await addRealSizeQuestionToPage(currentPage, pdfDoc, question, questionLayout);
         
         // Update content area with generous spacing
@@ -131,6 +143,16 @@ export const generateThemedQuestionPages = async (
   
   // Add footers to all pages
 // [KGA-CHANGE]: Footers + (EN SONA ALINMIŞ) Watermark — for...of ile await güvenli
+// 🚫 Yaprak Test teması için maksimum 2 sayfa limiti
+if (theme?.config?.id === 'yaprak-test' && pdfDoc.getPageCount() >= 2) {
+  alert(
+    '⚠️ Yaprak Test teması en fazla 2 sayfa içerebilir.\n' +
+    'Daha fazla soru eklemek için lütfen diğer temaları kullanın.'
+  );
+  console.warn('[PDF] Yaprak Test 2 sayfa sınırına ulaştı, 3. sayfa oluşturulmadı.');
+  return; // Yeni sayfa oluşturulmasın
+}
+
 const pages = pdfDoc.getPages();
 const questionPages = pages.slice(0, pageCount);
 
@@ -206,6 +228,7 @@ const createProfessionalPageWithContent = async (
   isFirstPage: boolean,
   theme?: any
 ): Promise<{ page: PDFPage; contentArea: ContentArea }> => {
+  
   const page = createNewPage(pdfDoc);
   if (theme?.config?.backgroundSvgPath) {
     try {

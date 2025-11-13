@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, FileText, Monitor, Edit, Sparkles, Lock, User } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
@@ -80,18 +80,10 @@ export const ActionSelectionPage: React.FC = () => {
     return 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:shadow-md';
   };
 
-  const handleActionSelect = (actionId: string, isLocked: boolean, comingSoon: boolean) => {
-    if (isLocked || comingSoon) return;
-    setSelectedAction(actionId);
-  };
+    const navigationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /**
-   * Handle continue button click
-   */
-  const handleContinue = () => {
-    if (!selectedAction) return;
-
-    switch (selectedAction) {
+   const navigateToAction = (actionId: string) => {
+    switch (actionId) {
       case 'test-creator':
         // Clear any existing step state to start fresh
         localStorage.removeItem('currentStep');
@@ -111,6 +103,28 @@ export const ActionSelectionPage: React.FC = () => {
         navigate('/test-creator');
     }
   };
+
+  const handleActionSelect = (actionId: string, isLocked: boolean, comingSoon: boolean) => {
+    if (isLocked || comingSoon) return;
+
+    setSelectedAction(actionId);
+
+    if (navigationTimeoutRef.current) {
+      clearTimeout(navigationTimeoutRef.current);
+    }
+
+    navigationTimeoutRef.current = setTimeout(() => {
+      navigateToAction(actionId);
+    }, 300);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Navigate back to welcome page or admin dashboard
@@ -282,7 +296,7 @@ export const ActionSelectionPage: React.FC = () => {
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between pt-6 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200">
           <Button
             variant="outline"
             onClick={handleBack}
@@ -290,15 +304,8 @@ export const ActionSelectionPage: React.FC = () => {
           >
             {isAdmin ? 'Admin Paneline Dön' : 'Ana Sayfaya Dön'}
           </Button>
-          
-          <Button
-            onClick={handleContinue}
-            disabled={!selectedAction}
-            size="lg"
-          >
-            {selectedAction ? 'Devam Et' : 'Lütfen bir seçenek seçin'}
-          </Button>
-          
+
+     
           {/* Profile Button */}
           {userInfo.fullName && (
             <Button
